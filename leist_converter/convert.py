@@ -1,4 +1,6 @@
-import re, json, os
+import re, json
+import importlib.resources as pkg_resources
+from . import resources
 
 # Basisersetzungen (Umlaute, ß)
 REPLACEMENTS = {
@@ -11,13 +13,13 @@ REPLACEMENTS = {
     "Ü": "Ue"
 }
 
-def load_woerter():
-    file_path = os.path.join(os.path.dirname(__file__), '..', 'resources', 'word_mappings.json')
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
+
+def load_woerterbuch():
+    with pkg_resources.open_text(resources, "word_mappings.json", encoding="utf-8") as file:
+        return json.load(file)
 
 # Lade die Wörter aus der JSON-Datei
-woerter = load_woerter()
+woerter = load_woerterbuch()
 
 # Veraltete Wörter und französische Lehnwörter
 OLD_WORDS = woerter['old_words']
