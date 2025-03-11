@@ -13,7 +13,6 @@ REPLACEMENTS = {
     "Ü": "Ue"
 }
 
-
 def load_woerterbuch():
     with pkg_resources.open_text(resources, "word_mappings.json", encoding="utf-8") as file:
         return json.load(file)
@@ -22,12 +21,12 @@ def load_woerterbuch():
 woerter = load_woerterbuch()
 
 # Veraltete Wörter und französische Lehnwörter
-OLD_WORDS = woerter['old_words']
-FRENCH_WORDS = woerter['french_words']
+OLD_WORDS = {k.lower(): v for k, v in woerter['old_words'].items()}
+FRENCH_WORDS = {k.lower(): v for k, v in woerter['french_words'].items()}
 
 def convert_to_leist(text: str, *, erweitern: bool = True, franz_modus: bool = True) -> str:
     """
-    Konvertiert modernen Text in altdeutsche Schreibweise, optional mit französischem Modus.
+    Konvertiert modernen Text in altdeutsche Schreibweise, mit französischem Modus.
     
     :param text: Der Eingabetext.
     :param erweitern: Wendet zusätzliche alte Rechtschreibregeln an.
@@ -50,26 +49,24 @@ def convert_to_leist(text: str, *, erweitern: bool = True, franz_modus: bool = T
     return text
 
 def _anwenden_alte_rechtschreibung(text: str) -> str:
-    for modern, alt in OLD_WORDS.items():
-        pattern = re.compile(rf'\b{modern}\b', re.IGNORECASE)
-        text = pattern.sub(lambda m: _case_preserve(m.group(), alt), text)
+    # Erzeuge ein Pattern mit allen alten Wörtern
+    pattern = re.compile(r'\b(' + '|'.join(map(re.escape, OLD_WORDS.keys())) + r')\b', re.IGNORECASE)
 
-    return text
+    # Ersetze die Wörter, unter Beibehaltung des Original-Casings
+    return pattern.sub(lambda m: _case_preserve(m.group(), OLD_WORDS[m.group().lower()]), text)
 
 def _ersetze_franzoesische_lehnwoerter(text: str) -> str:
-    for deutsch, franzoesisch in FRENCH_WORDS.items():
-        pattern = re.compile(rf'\b{deutsch}\b', re.IGNORECASE)
-        text = pattern.sub(lambda m: _case_preserve(m.group(), franzoesisch), text)
+    # Erzeuge ein Pattern mit allen französischen Wörtern
+    pattern = re.compile(r'\b(' + '|'.join(map(re.escape, FRENCH_WORDS.keys())) + r')\b', re.IGNORECASE)
 
-    return text
+    # Ersetze die Wörter, unter Beibehaltung des Original-Casings
+    return pattern.sub(lambda m: _case_preserve(m.group(), FRENCH_WORDS[m.group().lower()]), text)
 
 def _case_preserve(original: str, replacement: str) -> str:
+    """Passt die Groß-/Kleinschreibung des Replacements an das Originalwort an."""
     if original.isupper():
         return replacement.upper()
     elif original[0].isupper():
-        return replacement[0].upper() + replacement[1:]
+        return replacement.capitalize()
     else:
         return replacement.lower()
-
-text = "Die Dame fährt mit dem Auto zum Geschäft und telefoniert."
-print(convert_to_leist(text))

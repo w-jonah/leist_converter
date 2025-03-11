@@ -11,8 +11,8 @@ dependencies = []
 requires-python = ">=3.8"
 
 [project.urls]
-Homepage = "https://github.com/dein-benutzername/altdeutsche-schreibweise"
-Repository = "https://github.com/dein-benutzername/altdeutsche-schreibweise"
+Homepage = "https://github.com/w-jonah/leist_converter.git"
+Repository = "https://github.com/w-jonah/leist_converter.git"
 
 [tool.setuptools]
 packages = ["leist_converter"]
