@@ -1,6 +1,6 @@
 [project]
 name = "leist_converter"
-version = "0.1.1"
+version = "0.1.2"
 description = "Eine Python-Bibliothek zur Umwandlung von Texten in altdeutsche Schreibweise, inklusive französischer Lehnwörter."
 readme = "README.md"
 authors = [
